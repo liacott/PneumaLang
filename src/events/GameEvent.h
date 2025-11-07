@@ -1,9 +1,11 @@
 #pragma once
 
+#include <iostream>
+
 // Super class to handle all in game events and entity interactions
 class GameEvent {
 public:
-	int id;
+	int id; // GameEvent ids should be a 6 digit number of the format 3XXXXX
 	std::string name;
 
 	GameEvent(int x, std::string n) {
@@ -19,7 +21,7 @@ public:
 	}
 
 	// Getters
-	
-	//
+	int get_id();
+	std::string get_name();
 
 };

@@ -114,8 +114,12 @@ int difficulty_select()
 // Handle the flow between menus
 bool startup_menu_flow() {
 	std::string menu_choice = main_menu();
-	if (menu_choice == "quit") {
+	if (menu_choice == "quit") 
+	{
 		return false;
 	}
-	return true;
+	else if (menu_choice == "settings")
+	{
+		return false; // TODO
+	}
 }

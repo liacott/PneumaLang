@@ -1,8 +1,12 @@
 #include "Entity.h"
 #include "events/GameEvent.h"
-#include "events/EventHandler.h"
+#include "events/GameEventHandler.h"
 
 // Setters and getters
+int Entity::get_id() {
+	return id;
+}
+
 void Entity::set_name(std::string new_name) {
 	name = new_name;
 }

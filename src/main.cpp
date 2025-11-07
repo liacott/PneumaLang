@@ -1,5 +1,4 @@
-﻿#include "APeregrinatorsTale.h"
-#include "MenuManager.h"
+﻿#include "MenuManager.h"
 
 #include <functional>	// for functionn
 #include <memory>		// for make_shared & shared_ptr
@@ -16,11 +15,12 @@ int main()
 	using namespace ftxui;
 
 	// If player finishes character creation, game world initializes
+
 	bool load_game = startup_menu_flow();
 
 	if (!load_game) 
 	{
-		return 0;
+		return 0; // Terminate program if user selects quit
 	}
 
 	return 0;
