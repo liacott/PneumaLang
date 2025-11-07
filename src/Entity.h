@@ -25,8 +25,6 @@ public:
 	std::string get_inspect_text();
 
 	void enable_inspect();
-	void disable_inspect();
-
-	void 
+	void disable_inspect(); 
 	
 };
