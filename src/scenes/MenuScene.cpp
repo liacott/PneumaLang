@@ -13,5 +13,5 @@ std::string MenuScene::display_menu() {
 	
 	//Title renderer
 	auto renderer = ftxui::Renderer([] {return ftxui::text("A PEREGRINATOR'S TALE"); });
-
+	return "oops";
 }

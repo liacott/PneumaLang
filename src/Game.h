@@ -1,11 +1,12 @@
 #include "scenes/Scene.h"
 #include <iostream>
+#include <map>
 
 class Game {
 public:
-	std::vector<Scene> game_scenes;
+	std::map<int, Scene> game_scenes;
 
-	void change_scene(int target_id);
+	void load_scene(int target_id);
 	void render_scene();
 	void initialize_scenes();
 	

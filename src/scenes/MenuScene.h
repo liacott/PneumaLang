@@ -19,7 +19,6 @@ public:
 		const {
 		return	id == other.id &&
 			local_event_handler == other.local_event_handler &&
-			scene_entities == other.scene_entities &&
 			nav_map == other.nav_map;
 	}
 
