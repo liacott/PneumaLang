@@ -21,6 +21,6 @@ public:
 	bool exists(const std::string& id) const;
 	
 	// Add a new language to the registry and return its ID
-	std::string create_language(const std::string& parent_ID = "");
+	std::string create_language(const std::string& parent_ID);
 
 };
