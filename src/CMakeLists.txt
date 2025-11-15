@@ -10,12 +10,12 @@ FetchContent_MakeAvailable(ftxui)
 # Add source to this project's executable.
 add_executable (main	"main.cpp"
 						"scenes/SceneState.h"
-						"scenes/GameMap.h" "scenes/GameMap.cpp"
-						"scenes/Cell.h"
+						"map/GameMap.h" "map/GameMap.cpp"
+						"map/Cell.h"
 						"languages/Language.h"
 						"languages/LanguageManager.cpp"
 						"scenes/SceneManager.cpp"
-						"scenes/GameView.h")
+						"scenes/GameView.h" "map/MapMode.h" "humanity/Civ.h" "humanity/CivManager.cpp" "map/Point.h")
 
 target_include_directories(main PRIVATE ${CMAKE_SOURCE_DIR}/external)
 

@@ -19,5 +19,6 @@ std::string LanguageManager::create_variety(std::string var_name, Language& core
 	std::string id = core_lang.lang_id 
 		+ "_var_" + std::to_string(++core_lang.variety_counter);
 	Variety var{ id, var_name, 1.0, 1.0 };
+	variety_registry[id] = var;
 	return id;
 }

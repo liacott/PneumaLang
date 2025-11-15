@@ -1,22 +1,35 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <unordered_map>
 #include "Cell.h"
+#include "MapMode.h"
 #include "json.hpp"
+#include "../humanity/Civ.h"
+
+class CivManager;
+
 using json = nlohmann::json;
 
 class GameMap {
-	std::vector<std::vector<Cell>> map_grid;
-	int width;
-	int height;
-	std::string map_mode;
-
+	
 public:
 	
+	int width;
+	int height;
+
 	GameMap(int w, int h) {
 		width = w;
 		height = h;
 	}
+
+	std::vector<std::vector<Cell>> cell_grid;
+
+	std::unordered_map<std::string, cell_RGB> language_colors;
+	std::unordered_map<std::string, cell_RGB> civ_colors;
+	std::unordered_map<std::string, cell_RGB> terrain_colors;
+
+	MapMode active_map_mode;
 
 	Cell map_char_to_cell(char tile, const json& terrain_defaults, const json& terrain_legend);
 	void initialize_from_JSON(const std::string& filename);

@@ -16,41 +16,42 @@
       "terrrain_color": "blue",
       "habitable": false,
       "population": 0,
-      "drift_resist": 1
+      "multiling_factor": 0.0,
+      "drift_resist": 1.0
     },
     "plain": {
       "terrain_color": "light_green",
       "habitable": true,
-      "population": 3,
-      "multiling_factor": 2,
+      "population": 2,
+      "multiling_factor": 2.0,
       "drift_resist": 0.4
     },
     "forest": {
       "terrain_color": "green",
       "habitable": true,
-      "population": 3,
-      "multiling_factor": 2,
+      "population": 2,
+      "multiling_factor": 2.0,
       "drift_resist": 0.5
     },
     "mountain": {
       "terrain_color": "red",
       "habitable": true,
-      "population": 2,
-      "multiling_factor": 2,
+      "population": 1,
+      "multiling_factor": 2.0,
       "drift_resist": 0.7
     },
     "desert": {
       "terrain_color": "yellow",
       "habitable": true,
       "population": 1,
-      "multiling_factor": 2,
+      "multiling_factor": 2.0,
       "drift_resist": 0.65
     },
     "urban": {
-      "terrain_color": "grey",
+      "terrain_color": "gray",
       "habitable": true,
-      "population": 4,
-      "multiling_factor": 2,
+      "population": 3,
+      "multiling_factor": 2.0,
       "drift_resist": 0.3
     }
   },
