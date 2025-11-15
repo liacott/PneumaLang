@@ -2,12 +2,13 @@
   "width": 40,
   "height": 20,
 
-  "legend": {
+  "terrain_legend": {
     "~": "ocean",
     ".": "plain",
     "#": "forest",
     "^": "mountain",
-    "%": "desert"
+    "%": "desert",
+    "@": "urban"
   },
 
   "terrain_defaults": {
@@ -25,14 +26,14 @@
       "drift_resist": 0.4
     },
     "forest": {
-      "terrain_color": "dark_green",
+      "terrain_color": "green",
       "habitable": true,
       "population": 3,
       "multiling_factor": 2,
       "drift_resist": 0.5
     },
     "mountain": {
-      "terrain_color": "gray",
+      "terrain_color": "red",
       "habitable": true,
       "population": 2,
       "multiling_factor": 2,
@@ -44,14 +45,21 @@
       "population": 1,
       "multiling_factor": 2,
       "drift_resist": 0.65
+    },
+    "urban": {
+      "terrain_color": "grey",
+      "habitable": true,
+      "population": 4,
+      "multiling_factor": 2,
+      "drift_resist": 0.3
     }
   },
 
-  "layout": [
-    "^^^^^^^.~~~~~~~~~~~~~~~~......^^^..%%%%.",
-    "^^^^^....~~~~~~~~~~~~~~~~...^^^...%%.%%.",
-    "^^^..##...~~~~~~~~~~~~~~...^^.....%....#",
-    "^^..####...~~~~~~~~~~~~....^^........###",
+  "base_layout": [
+    "^^^^^^^...%%%%%%%%%%%%%%%.....^^^..%%%%.",
+    "^^^^^.......%%%%%%%%%%%%%%..^^^...%%.%%.",
+    "^^^..##........~~~~~~%%%%..^^.....%....#",
+    "^^..####.....~~~~~~~~~~....^^........###",
     "^.###......~~~~~~...~~~~....^^.....#####",
     "...#......~~~~...#....~~~~...^^.....####",
     "%%.........~~...###...~~~~~.##.^.....###",
@@ -70,11 +78,11 @@
     "...^.##...~~~~~~~~~~~~..^.......~~~~...."
   ],
 
-  "special_cells": [
+  "": [
 
   ],
 
-  "start_positions": [
+  "special_locations": [
 
   ]
 

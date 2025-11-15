@@ -12,4 +12,5 @@ enum class Scene {
 struct SceneState {
 	Scene current_scene;
 	Scene next_scene;
+	bool pending_scene_switch = false;
 };

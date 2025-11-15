@@ -4,175 +4,242 @@
 #include <ftxui/dom/elements.hpp>
 #include <iostream>
 
-SceneManager::SceneManager(std::shared_ptr<SceneState> state) : state(state) 
-{
-} 
+SceneManager::SceneManager(std::shared_ptr<SceneState> state) : state_(state) {} 
 
-ftxui::Component SceneManager::build_main_menu(std::shared_ptr<SceneState> state) {
+ftxui::Component SceneManager::build_main_menu(RebuildCallback request_rebuild) {
 	
 	// Selected menu index
-	auto selected = std::make_shared<int>(0);
+	if (selected_indices_.find(Scene::MainMenu) == selected_indices_.end())
+		selected_indices_[Scene::MainMenu] = 0;
 
-	// Options
-	std::vector<std::string> menu_options = { "Start", "Load", "Settings", "Quit" };
+	auto& selected = selected_indices_[Scene::MainMenu];
+
+	// Menu entries
+	static std::vector<std::string> entries = {
+		"New Game",
+		"Load Game",
+		"Settings",
+		"Quit"
+	};
 
 	// Renderer for menu
-	auto menu_renderer= ftxui::Renderer([selected, menu_options]() {
-		std::vector<ftxui::Element> entries;
-		// Build the menu manually
-		for (size_t i = 0; i < menu_options.size(); ++i) {
-			auto ev = ftxui::text(menu_options[i]);
-			if (*selected == i) {
-				ev = ev | ftxui::bold | ftxui::inverted;
-			}
-			entries.push_back(ev);
-		}
-		return ftxui::vbox(entries) 
-			| ftxui::vcenter
-			| ftxui::size(ftxui::WIDTH, ftxui::LESS_THAN, 10);
+	auto menu = ftxui::Menu({
+		.entries = &entries,
+		.selected = &selected
+	})  | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 20)
+		| ftxui::hcenter;
+
+	auto menu_renderer = ftxui::Renderer(menu, [menu] {
+		return menu->Render();
 	});
 
 	// Handle user input and selection
-	auto menu_component = ftxui::CatchEvent(menu_renderer, [selected, menu_options, state] (ftxui::Event event) {
+	auto menu_with_events = ftxui::CatchEvent(menu_renderer, 
+		[this, &selected, request_rebuild](ftxui::Event event) {
+			if (event == ftxui::Event::Return) {
+				switch (selected) {
+					case 0: state_->next_scene = Scene::SpiritSelect; break;
+					case 1: state_->next_scene = Scene::LoadMenu; break;
+					case 2: state_->next_scene = Scene::Settings; break;
+					case 3: state_->next_scene = Scene::Exit; break;
+				}
 
-		if (event == ftxui::Event::ArrowDown) {
-			*selected = (*selected + 1) % menu_options.size();
-			return true;
-		}
-		if (event == ftxui::Event::ArrowUp) {
-			*selected = (*selected + menu_options.size() - 1) % menu_options.size();
-			return true;
-		}
-		if (event == ftxui::Event::Return) {
-			switch (*selected) {
-				case 0: state->next_scene = Scene::SpiritSelect; break;
-				case 1: state->next_scene = Scene::LoadMenu; break;
-				case 2: state->next_scene = Scene::Settings; break;
-				case 3: state->next_scene = Scene::Exit; break;
+				state_->pending_scene_switch = true;
+				request_rebuild(); // Rebuild immediately on change
+				return true;
 			}
-			return true;
-		}
-		return false;
-	});
+			return false;
+		});
 
 	// Renderer for the whole layout
-	return ftxui::Renderer(menu_component, [menu_component]() {
-		return ftxui::vbox({
-			ftxui::text("PNEUMALANG") | ftxui::bold,
-			ftxui::separator(),
-			menu_component->Render(),
-	}) 
-	// Center the menu vertically
-	| ftxui::size(ftxui::WIDTH, ftxui::LESS_THAN, 20)
-	| ftxui::vcenter;
-	});
+	return ftxui::Renderer(menu_with_events, [menu_with_events] {
+        return ftxui::vbox({
+            ftxui::text("PNEUMALANG")
+                | ftxui::bold
+                | ftxui::color(ftxui::Color::Green)
+                | ftxui::hcenter,
+            ftxui::separator() | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 20),
+            menu_with_events->Render()
+        }) | ftxui::center;
+    });
 }
 
-//ftxui::Component SceneManager::build_spirit_select() {
-	// TODO
-//}
+ftxui::Component SceneManager::build_load_menu(RebuildCallback request_rebuild) {
+	// Selected menu index
+	if (selected_indices_.find(Scene::LoadMenu) == selected_indices_.end())
+		selected_indices_[Scene::LoadMenu] = 0;
 
-//ftxui::Component SceneManager::build_load_menu() {
-	// TODO
-//}
+	auto& selected = selected_indices_[Scene::Settings];
 
-// Make toggles for settings menu
-ftxui::Component SceneManager::make_hardmode_toggle(bool *enabled) {
-	
-	return ftxui::CatchEvent(ftxui::Renderer([enabled] {
-		std::string label = *enabled ? "HARDMODE: ENABLED" : "HARDMODE: DISABLED";
-		ftxui::Decorator color_deco = (*enabled)
-			? ftxui::color(ftxui::Color::RedLight)
-			: ftxui::color(ftxui::Color::GrayLight);
-
-		// Decorating toggle text
-		return ftxui::text(label) | ftxui::bold | color_deco | ftxui::center; 
-
-	}), [enabled](ftxui::Event event) {
-		if (event == ftxui::Event::Return) {
-			*enabled = !*enabled;
-			return true;
-		}
-		return false;
-	});
-}
-
-ftxui::Component SceneManager::build_settings_menu(std::shared_ptr<SceneState> state) {
-
-	bool hardmode_enabled = false;
-
-	auto hardmode_toggle = make_hardmode_toggle(&hardmode_enabled);
-
-	std::vector<std::string> menu_entries = {
-		"Toggle Hardmode",
+	// Options
+	static std::vector<std::string> menu_options{
 		"Back"
 	};
-	int selected = 0;
 
-	auto menu = ftxui::Menu(&menu_entries, &selected);
-
-	// Combine menu and toggle together
-	auto layout = ftxui::Renderer(menu, [&] {
-		ftxui::Elements lines;
-		lines.push_back(ftxui::text("#### SETTINGS ####") | ftxui::bold | ftxui::center);
-		lines.push_back(ftxui::separator());
-
-		if (selected == 0) {
-			// Show hardmode state when hovered over
-			lines.push_back(make_hardmode_toggle(&hardmode_enabled)->Render());
-		}
-		else {
-			// Show static label otherwise
-			lines.push_back(ftxui::text("Hardmode Enabled: ") |
-				(hardmode_enabled ? ftxui::color(ftxui::Color::RedLight)
-					: ftxui::color(ftxui::Color::GrayLight)) |
-				ftxui::center);
-		}
-
-		lines.push_back(ftxui::separator());
-		lines.push_back(ftxui::text("Back") |
-			(selected == 1 ? ftxui::inverted : ftxui::nothing) |
-			ftxui::center);
-
-		return vbox(lines) | ftxui::border | ftxui::center;
-
-		});
-	
-	// Handle enter key press
-	auto component = ftxui::CatchEvent(layout, [&](ftxui::Event event) {
-		if (event == ftxui::Event::Return) {
-			if (selected == 0) {
-				hardmode_enabled = !hardmode_enabled; // Flip hardmode status on press
-			}
-			else if (selected == 1) {
-				//screen.Exit();
-				state->next_scene = Scene::MainMenu;
-			}
-			return true;
-		}
-		return false;
+	// Menu component
+	auto menu = ftxui::Menu({ 
+		.entries = &menu_options, 
+		.selected = &selected 
 	});
 
-	return component;
+	// Renderer for menu
+	auto menu_renderer = ftxui::Renderer(menu, [menu] {
+		return menu->Render();
+	});
+
+	// Handle user input and selection
+	auto menu_with_events = ftxui::CatchEvent(menu_renderer, 
+		[this, &selected, request_rebuild](ftxui::Event event) {
+			if (event == ftxui::Event::Return) {
+				switch (selected) {
+					case 0: state_->next_scene = Scene::MainMenu; break;
+				}
+				state_->pending_scene_switch = true;
+				request_rebuild(); // Rebuild immediately on change
+				return true;
+			}
+			return false;
+		});
+
+	// Renderer for the whole layout
+	return ftxui::Renderer(menu_with_events, [menu_with_events] {
+        return ftxui::vbox({
+            ftxui::text("LOAD GAME")
+                | ftxui::bold
+                | ftxui::color(ftxui::Color::Red)
+                | ftxui::hcenter,
+            ftxui::separator() | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 20),
+            menu_with_events->Render()
+        }) | ftxui::vcenter;
+    });
+}
+
+ftxui::Component SceneManager::build_settings_menu(RebuildCallback request_rebuild) {
+	
+	// Selected menu index
+	if (selected_indices_.find(Scene::Settings) == selected_indices_.end())
+		selected_indices_[Scene::Settings] = 0;
+
+	auto& selected = selected_indices_[Scene::Settings];
+
+	// Options
+	static std::vector<std::string> menu_options{
+		"Back"
+	};
+
+	// Menu component
+	auto menu = ftxui::Menu({ 
+		.entries = &menu_options, 
+		.selected = &selected 
+	});
+
+	// Renderer for menu
+	auto menu_renderer = ftxui::Renderer(menu, [menu] {
+		return menu->Render();
+	});
+
+	// Handle user input and selection
+	auto menu_with_events = ftxui::CatchEvent(menu_renderer, 
+		[this, &selected, request_rebuild](ftxui::Event event) {
+			if (event == ftxui::Event::Return) {
+				switch (selected) {
+					case 0: state_->next_scene = Scene::MainMenu; break;
+				}
+				state_->pending_scene_switch = true;
+				request_rebuild(); // Rebuild immediately on change
+				return true;
+			}
+			return false;
+		});
+
+	// Renderer for the whole layout
+	return ftxui::Renderer(menu_with_events, [menu_with_events] {
+        return ftxui::vbox({
+            ftxui::text("SETTINGS")
+                | ftxui::bold
+                | ftxui::color(ftxui::Color::Red)
+                | ftxui::hcenter,
+            ftxui::separator() | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 20),
+            menu_with_events->Render()
+        }) | ftxui::vcenter;
+    });
+}
+
+ftxui::Component SceneManager::build_spirit_select(RebuildCallback request_rebuild) {
+	
+	// Selected menu index
+	if (selected_indices_.find(Scene::SpiritSelect) == selected_indices_.end())
+		selected_indices_[Scene::SpiritSelect] = 0;
+
+	auto& selected = selected_indices_[Scene::SpiritSelect];
+
+	// Options
+	static std::vector<std::string> menu_options{
+		"Spirit of Song",
+		"Spirit of Prose",
+		"Spirit of Drama",
+		"Spirit of Rhetoric",
+		"Back"
+	};
+
+	// Menu component
+	auto menu = ftxui::Menu({ 
+		.entries = &menu_options, 
+		.selected = &selected 
+	});
+
+	// Renderer for menu
+	auto menu_renderer = ftxui::Renderer(menu, [menu] {
+		return menu->Render();
+	});
+
+	// Handle user input and selection
+	auto menu_with_events = ftxui::CatchEvent(menu_renderer, 
+		[this, &selected, request_rebuild](ftxui::Event event) {
+			if (event == ftxui::Event::Return) {
+				switch (selected) {
+					case 0: state_->next_scene = Scene::GameView; break;
+					case 1: state_->next_scene = Scene::GameView; break;
+					case 2: state_->next_scene = Scene::GameView; break;
+					case 3: state_->next_scene = Scene::GameView; break;
+					case 4: state_->next_scene = Scene::MainMenu; break;
+				}
+				state_->pending_scene_switch = true;
+				request_rebuild(); // Rebuild immediately on change
+				return true;
+			}
+			return false;
+		});
+
+	// Renderer for the whole layout
+	return ftxui::Renderer(menu_with_events, [menu_with_events] {
+        return ftxui::vbox({
+            ftxui::text("WHO ARE YOU?")
+                | ftxui::bold
+                | ftxui::color(ftxui::Color::Blue)
+                | ftxui::hcenter,
+            ftxui::separator() | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 20),
+            menu_with_events->Render()
+        }) | ftxui::center;
+    });
 }
 
 //ftxui::Component SceneManager::build_game_view(bool hardmode) {
 	// TODO
 //}
 
-ftxui::Component SceneManager::build_scene(Scene scene, std::shared_ptr<SceneState> state) {
+ftxui::Component SceneManager::build_scene(Scene scene, RebuildCallback rebuild_scene) {
 	switch (scene) {
 	case Scene::MainMenu:
-		return build_main_menu(state);
-	case Scene::Settings:
-		return ftxui::Renderer([] { return ftxui::text("Settings placeholder"); });
+		return build_main_menu(rebuild_scene);
 	case Scene::LoadMenu:
-		return ftxui::Renderer([] { return ftxui::text("Load Menu placeholder"); });
-	case Scene::SpiritSelect:
-		return ftxui::Renderer([] { return ftxui::text("Spirit Select placeholder"); });
+		return build_load_menu(rebuild_scene);
+	case Scene::Settings:
+		return build_settings_menu(rebuild_scene);
 	case Scene::Exit:
 		return ftxui::Renderer(nullptr, [] { return ftxui::text("Exiting..."); });
-	default:
-		return build_main_menu(state);
+	case Scene::SpiritSelect:
+		return build_spirit_select(rebuild_scene);	
 	}
+	return build_main_menu(rebuild_scene); // Default
 }

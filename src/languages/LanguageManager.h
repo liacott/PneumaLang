@@ -17,4 +17,6 @@ public:
 	// Add a new language to the registry and return its ID
 	std::string create_language(std::string lang_name, const std::string& parent_ID);
 
+	// Add a new variety to the registry and return its ID
+	std::string create_variety(std::string var_name, Language& core_lang);
 };
